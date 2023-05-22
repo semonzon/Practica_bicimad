@@ -5,6 +5,7 @@ Created on Tue May  9 13:58:31 2023
 @author: USUARIO
 """
 
+
 '''
 
         PRÁCTICA BICIMAD
@@ -99,6 +100,7 @@ La finalidad de esto es para luego poder ordenar los elementos en función de su
 con mas tiempo de uso  
 
 '''
+
 def transformar_tiempo(rdd0):
     
     rdd_origen = rdd0.\
