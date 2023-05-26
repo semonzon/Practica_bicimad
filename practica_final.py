@@ -6,6 +6,8 @@ Created on Thu May 25 21:14:55 2023
 """
 
 
+
+
 #        PRÁCTICA BICIMAD
         
 #Para esta práctica, es necesario que los archivos que contienen los datos de BiciMad estén en una carpeta 
@@ -24,6 +26,7 @@ from pyspark import SparkContext,SparkConf
 from pyspark.sql import SparkSession
 import os,json
 from numpy import mean
+import time
 
 
 #Obtener_datos
@@ -38,8 +41,9 @@ def obtener_datos(linea):
     tiempo_viaje = datos["travel_time"]
     origen = datos["idunplug_station"]
     destino = datos["idplug_station"]
+    tipo_usuario = datos["user_type"]
     
-    return tiempo_viaje, origen, destino
+    return tiempo_viaje, origen, destino, tipo_usuario
 
 
 #Transformar_conexiones
@@ -61,9 +65,13 @@ def obtener_datos(linea):
 #donde B es la estacion conectada con A, y 'origen'/'destino' dependiendo de lo que sea A de B
 
 def transformar_conexiones(rdd0):
+
+    rdd0 = rdd0.filter(lambda x : x[3] == 1)
+
+    rdd01 = rdd0.map(lambda x: (x[1] , (x[2],round(x[0]),'origen') ))
+    rdd02 = rdd0.map(lambda x: (x[2] , (x[1],round(x[0]),'destino') ))
+    rdd1 = rdd01.union(rdd02)
     
-    rdd1 = rdd0.\
-           map(lambda x: (x[1] , (x[2],round(x[0]),'origen') )) + rdd0.map(lambda x: ( x[2] , (x[1],round(x[0]),'destino') ))
     #      \---------------------1.1--------------------------\1.3\------------------------1.2------------------------------\ 
     rdd_final = rdd1.\
                 groupByKey().\
@@ -100,6 +108,9 @@ def transformar_conexiones(rdd0):
 
 def transformar_tiempo(rdd0):
     
+    # x[3] = tipo_de_usuario == 1
+    rdd0 = rdd0.filter(lambda x: x[3]==1)
+
     rdd_origen = rdd0.\
                     map( lambda x: (x[1] , x[0]) ).\
                     groupByKey().mapValues(list).mapValues(mean).mapValues(round)
@@ -134,7 +145,7 @@ def juntar_tiempos(lista):
 def main():
     
     #Primero creamos el sc y un spark (para luego poder representar los datos en un DataFrame)
-    
+    start_total = time.time()
     spark = SparkSession.builder.getOrCreate()
     sc = spark.sparkContext
     
@@ -154,8 +165,9 @@ def main():
 		
 	  # IMPORTANTE: QUITAR LA SEGUNDA CONDICION DEL IF PARA QUE ANALICE TODOS LOS ARCHIVOS, 
 	  # SI NO SOLO VA A ANALIZAR EL ARCHIVO DE ENERO DE 2018
-      if filename.endswith('.json') and filename[:6] == '201801':
-        
+      if filename.endswith('.json'): #and filename[:6] == '201801':
+
+        start_file = time.time()
         #Primero leemos el archivo y obtenemos sus datos
         
         rdd_file = sc.textFile(files+'/'+filename).\
@@ -180,7 +192,7 @@ def main():
         
         #Lo añadimos a rdd_tiempo
         
-        rdd_tiempo += rdd_tiempo_file
+        rdd_tiempo = rdd_tiempo.union(rdd_tiempo_file)
         
         
         #rdd_conexiones_file va a contener los datos referentes a las conexiones de cada estación. 
@@ -194,7 +206,7 @@ def main():
         
         #Lo añadimos a rdd_conexiones
         
-        rdd_conexiones += rdd_conexiones_file
+        rdd_conexiones = rdd_conexiones.union(rdd_conexiones_file)
         print('\n')
         print('Las 10 estaciones con mas conexiones en', filename[:6],' son: ')
         #print(rdd_conexiones_file.take(10))
@@ -206,6 +218,11 @@ def main():
         rdd_conexiones_file2 = rdd_conexiones_file.toDF(columnas_conexiones)
         rdd_conexiones_file2.show(10)
         
+        end_file = time.time()
+        
+        print('---------------')
+        print('El programa ha tardado ', end_file-start_file,' segundos para manipular los datos de:', filename[:6])
+        print('---------------')
     
     #rdd_conexiones va a tener los datos relacionados con el número de conexiones de cada estación de todos los meses
     #Sus elementos van a ser de la forma (estación, numero_conexiones)
@@ -255,7 +272,11 @@ def main():
     rdd_tiempo2.show(20)
     sc.stop()
     
+    end_total = time.time()
     
+    print('---------------')
+    print('El programa ha tardado en total ', end_total-start_total,' segundos')
+    print('---------------')
 
 
 if __name__ == '__main__':
