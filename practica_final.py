@@ -32,7 +32,7 @@ import time
 #Obtener_datos
 #Esta función toma de entrada una linea como la que se ha puesto de ejemplo en la introducción de este programa. 
 #Su objetivo es obtener los datos necesarios para luego el tratamiento de estos datos seleccionados. La función
-#obtiene los datos 'travel_time', 'idplug_station' y 'idunplug_station'.
+#obtiene los datos 'travel_time', 'idplug_station', 'idunplug_station' y 'user_type.
 
 
 def obtener_datos(linea):
@@ -50,6 +50,7 @@ def obtener_datos(linea):
 #Esta función toma de entrada un rdd donde los elementos del rdd son de la forma (T,A,B) = (tiempo_viaje,origen,destino). Esto representa 
 #cada viaje del origen A al destino B, tardando un tiempo T. 
 #Los pasos que realiza la función son los siguientes:
+#    0. Antes que nada, hace un filter de los usuarios que son de tipo 1. Es decir, los usuarios que poseen un pase anual.
 #    1. Primero hace un map del rdd de entrada, en el cual se obtiene:
 #        1.1 Primero se obtiene un rdd donde los elementos son (A,B,'origen').
 #        1.2 Después se obtiene un rdd donde los elementos son (B,A,'destino')
@@ -72,7 +73,6 @@ def transformar_conexiones(rdd0):
     rdd02 = rdd0.map(lambda x: (x[2] , (x[1],round(x[0]),'destino') ))
     rdd1 = rdd01.union(rdd02)
     
-    #      \---------------------1.1--------------------------\1.3\------------------------1.2------------------------------\ 
     rdd_final = rdd1.\
                 groupByKey().\
                 mapValues(list).\
@@ -91,6 +91,7 @@ def transformar_conexiones(rdd0):
 #Esta función toma de entrada un rdd donde los elementos del rdd son de la forma (T,A,B) = (tiempo_viaje,origen,destino). Esto representa 
 #cada viaje del origen A al destino B, tardando un tiempo T. 
 #Los pasos que realiza la función son los siguientes:
+#    0. Antes que nada, hace un filter de los usuarios que son de tipo 1. Es decir, los usuarios que poseen un pase anual.
 #    1. Primero se obtiene un rdd donde :
 #        1.1 Primero se hace un map para que los elementos tengan la forma (A,T)
 #        1.2 Después se agrupan los datos por las estaciones A y se hace la media de los tiempos. 
@@ -163,9 +164,7 @@ def main():
     
     for filename in os.listdir(files):
 		
-	  # IMPORTANTE: QUITAR LA SEGUNDA CONDICION DEL IF PARA QUE ANALICE TODOS LOS ARCHIVOS, 
-	  # SI NO SOLO VA A ANALIZAR EL ARCHIVO DE ENERO DE 2018
-      if filename.endswith('.json'): #and filename[:6] == '201801':
+      if filename.endswith('.json'):
 
         start_file = time.time()
         #Primero leemos el archivo y obtenemos sus datos
