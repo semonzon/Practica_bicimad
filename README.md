@@ -6,11 +6,11 @@ Idioma: Python
 
 Creadores:
 
-  Joel Gómez Santos
-
-  Sergio Monzon Garces
-
-  Celeste Rhodes Rodríguez
+    Joel Gómez Santos
+    
+    Sergio Monzon Garces
+    
+    Celeste Rhodes Rodríguez
 
 1. Motivación
 
