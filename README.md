@@ -18,6 +18,14 @@ El objetivo de la práctica es analizar los datos de viajes de bicimad para reso
 
 2. Descripción
 
+El programa primero crea una sesión de Spark y recoge y abre los datos de los archivos de información de tipo json que deseamos analizar.
+
+Analizamos cuáles son las estaciones con más tiempo de uso por bicicleta, es decir, cuánto tiempo pasa desde que se detecta que la bicicleta sale de la estación hasta que llega a otra estación dividido entre el número de viajes. Nos quedamos con las diez primeras y las representamos en un dataframe.
+
+A continuación calculamos cuales son las estaciones con más viajes cuyo comienzo o destino sea dicha estación y nos quedamos con el top 10. Las representamos en una tabla dataframe junto a su número de conexiones.
+
+Durante el programa analizamos el tiempo que tardan las funciones en ejecutarse para poder comparar su eficiencia cuando analizan distintos archivos.
+
 3. Modo de uso
 
 Para ejecutar el programa el usuario debe instalar los módulos pyspark, os, json, numpy y time, los cuales pueden instalarse en el ordenador fácilmente.
