@@ -33,3 +33,5 @@ Para ejecutar el programa el usuario debe instalar los módulos pyspark, os, jso
 El usuario que desee ejecutar el programa debe tener los archvos de los datos .json que desee analizar o, en su defecto, estar conectado a un cluster donde se encuentren estos archivos.
 
 Basta ejecutar los programas y este presentará los datos de interés en formato dataframe.
+
+El archivo .py definitivo a ejecutar es el que llamamos 'practica_final.py'.
